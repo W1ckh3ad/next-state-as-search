@@ -6,7 +6,8 @@
   "module": "dist/index.mjs",
   "types": "dis/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts"
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "tsc"
   },
   "repository": {
     "type": "git",

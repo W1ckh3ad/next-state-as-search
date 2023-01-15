@@ -22,6 +22,7 @@ $ pnpm add next-state-as-search
 
 ## TODO:
 
+- linting
 - publish
 - ci
 - unit test code coverage
