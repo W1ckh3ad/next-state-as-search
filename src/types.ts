@@ -57,6 +57,7 @@ export type UnwrapZodTypesInfo = {
   hasEffect?: boolean;
   isOptional?: boolean;
   hasDefault?: boolean;
+  isBranded?: boolean;
 };
 
 export type RemoveNotSupportedTypes<T> = {
