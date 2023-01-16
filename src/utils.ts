@@ -4,7 +4,7 @@ import z from "zod";
 import {
   DeepObjectKeysPathWithValue,
   DeepPartial,
-  UnwrapZodTypesInfo
+  UnwrapZodTypesInfo,
 } from "./types";
 
 export function unwrapZodTypes<
@@ -26,6 +26,11 @@ export function unwrapZodTypes<
       ...info,
       hasDefault: true,
     });
+  }
+
+  if (zodType instanceof z.ZodBranded) {
+    console.log("branded", zodType);
+    return unwrapZodTypes(zodType.unwrap(), { ...info, isBranded: true });
   }
 
   return { zodType, info };
