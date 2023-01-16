@@ -14,6 +14,26 @@ const SetStateContext = createContext<Dispatch<SetStateAction<{}>>>(() =>
   console.error("No context set")
 );
 
+export function SimpleSearchContext<T>({
+  children,
+  search,
+  setSearch,
+}: {
+  children?: ReactNode;
+  search: T | undefined;
+  setSearch?: Dispatch<SetStateAction<T | undefined>>;
+}) {
+  return (
+    <GetStateContext.Provider value={search as {}}>
+      <SetStateContext.Provider
+        value={setSearch as Dispatch<SetStateAction<{}>>}
+      >
+        {children}
+      </SetStateContext.Provider>
+    </GetStateContext.Provider>
+  );
+}
+
 function SearchStateContext<T extends z.ZodTypeAny>({
   children,
   schema,
@@ -25,7 +45,7 @@ function SearchStateContext<T extends z.ZodTypeAny>({
   schema: T;
   fallback?: ReactNode;
   renderChildrenOnReady?: boolean;
-  OnError: FC<{ error: z.ZodError<T> }>;
+  OnError?: FC<{ error: z.ZodError<T> }>;
 }) {
   const { error, isReady, search, setSearch } = useSearch(schema);
 
@@ -37,7 +57,7 @@ function SearchStateContext<T extends z.ZodTypeAny>({
         {renderChildrenOnReady && isReady ? children : null}
         {!renderChildrenOnReady ? children : null}
         {renderChildrenOnReady && !isReady ? fallback : null}
-        {error ? <OnError error={error} /> : null}
+        {error && OnError ? <OnError error={error} /> : null}
       </SetStateContext.Provider>
     </GetStateContext.Provider>
   );
