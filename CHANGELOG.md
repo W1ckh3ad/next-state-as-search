@@ -1,5 +1,11 @@
 # next-state-as-search
 
+## 0.0.6
+
+### Patch Changes
+
+- e75ce58: add `withSearchState` hoc, changed `OnError` prop in `context` to optional, add simple `context` to distribute `search` and `setSearch`
+
 ## 0.0.4
 
 ### Patch Changes
