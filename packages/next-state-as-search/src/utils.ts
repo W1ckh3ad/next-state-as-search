@@ -1,15 +1,9 @@
-import { ParsedUrlQuery } from "querystring";
-import { SetStateAction } from "react";
-import z from "zod";
-import {
-  DeepObjectKeysPathWithValue,
-  DeepPartial,
-  UnwrapZodTypesInfo,
-} from "./types";
+import { ParsedUrlQuery } from 'querystring';
+import { SetStateAction } from 'react';
+import z from 'zod';
+import { DeepObjectKeysPathWithValue, DeepPartial, UnwrapZodTypesInfo } from './types';
 
-export function unwrapZodTypes<
-  T extends z.ZodType<any> | z.ZodOptional<any> | z.ZodEffects<any>
->(
+export function unwrapZodTypes<T extends z.ZodType<any> | z.ZodOptional<any> | z.ZodEffects<any>>(
   zodType: T,
   info?: UnwrapZodTypesInfo
 ): { zodType: z.ZodType<any>; info?: UnwrapZodTypesInfo } {
@@ -29,18 +23,15 @@ export function unwrapZodTypes<
   }
 
   if (zodType instanceof z.ZodBranded) {
-    console.log("branded", zodType);
+    console.log('branded', zodType);
     return unwrapZodTypes(zodType.unwrap(), { ...info, isBranded: true });
   }
 
   return { zodType, info };
 }
 
-export function unwrapSetStateAction<T>(
-  action: SetStateAction<T>,
-  oldValue: T
-): T {
-  if (typeof action === "function" && action instanceof Function) {
+export function unwrapSetStateAction<T>(action: SetStateAction<T>, oldValue: T): T {
+  if (typeof action === 'function' && action instanceof Function) {
     return action(oldValue) as any;
   } else {
     return action;
@@ -55,39 +46,28 @@ function traverseDicitionary(
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const value = obj[key];
-      if (typeof value === "object" && !Array.isArray(value)) {
+      if (typeof value === 'object' && !Array.isArray(value)) {
         traverseDicitionary(obj[key], action, [...depth, key]);
-      } else if (value !== undefined && key !== "" && value !== "") {
+      } else if (value !== undefined && key !== '' && value !== '') {
         action([depth, key], value);
       }
     }
   }
 }
 
-export function stateToParsedUrlQueryInput<
-  T,
-  TReturn = DeepObjectKeysPathWithValue<T>
->(input: T): TReturn {
+export function stateToParsedUrlQueryInput<T, TReturn = DeepObjectKeysPathWithValue<T>>(
+  input: T
+): TReturn {
   const query: Record<string, any> = {};
-  traverseDicitionary(
-    input,
-    ([depth, key], val) => (query[[...depth, key].join(".")] = val)
-  );
+  traverseDicitionary(input, ([depth, key], val) => (query[[...depth, key].join('.')] = val));
   return query as TReturn;
 }
 
 function transformStringToBoolean(value: string) {
-  return value === "true";
+  return value === 'true';
 }
 
-type ReturnTypeValues =
-  | undefined
-  | string
-  | boolean
-  | number
-  | string[]
-  | boolean[]
-  | number[];
+type ReturnTypeValues = undefined | string | boolean | number | string[] | boolean[] | number[];
 type ReturnType = {
   [s: string]: ReturnTypeValues | ReturnType;
 };
@@ -120,10 +100,10 @@ function transformValue<T extends z.ZodObject<any>>({
     }
 
     if (zodType instanceof z.ZodBoolean) {
-      return transformStringToBoolean(value);
+      return transformStringToBoolean(value + '');
     }
     if (zodType instanceof z.ZodNumber) {
-      return +value;
+      return +(value ?? '');
     }
 
     return value;
@@ -140,19 +120,15 @@ function applyValueWithSplittedKey(
     | ((keyAfterSplit: string, s: z.ZodObject<any>) => ReturnTypeValues)
     | ReturnTypeValues
 ) {
-  const set = (
-    o: ReturnType = returnObj,
-    k: string = key,
-    s: z.ZodObject<any> = schema
-  ) => {
-    if (typeof dispatchSetter === "function") {
+  const set = (o: ReturnType = returnObj, k: string = key, s: z.ZodObject<any> = schema) => {
+    if (typeof dispatchSetter === 'function') {
       o[k] = dispatchSetter(k, s);
       return;
     }
     o[k] = dispatchSetter;
   };
-  if (key.includes(".")) {
-    const splittedKey = key.split(".");
+  if (key.includes('.')) {
+    const splittedKey = key.split('.');
     let returnObjectProperty = returnObj;
     let schemaObjectProperty = schema;
     for (let i = 0; i < splittedKey.length; i++) {
@@ -160,9 +136,8 @@ function applyValueWithSplittedKey(
       returnObjectProperty[currentKey!] ??= {};
 
       if (i + 1 < splittedKey.length) {
-        schemaObjectProperty = unwrapZodTypes(
-          schemaObjectProperty.shape[currentKey!]
-        ).zodType as z.ZodObject<any>;
+        schemaObjectProperty = unwrapZodTypes(schemaObjectProperty.shape[currentKey!])
+          .zodType as z.ZodObject<any>;
         returnObjectProperty = returnObjectProperty[currentKey!] as ReturnType;
       } else if (i + 1 === splittedKey.length) {
         set(returnObjectProperty, currentKey, schemaObjectProperty);
